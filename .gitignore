@@ -1,0 +1,5 @@
+*.pyc
+data/
+cs285.egg-info/
+.DS_Store
+.vscode/
