@@ -143,7 +143,6 @@ class PGAgent(BaseAgent):
     #####################################################
     ################## HELPER FUNCTIONS #################
     #####################################################
-
     def _discounted_return(self, rewards):
         """
             Helper function
@@ -153,12 +152,16 @@ class PGAgent(BaseAgent):
             Output: list where each index t contains sum_{t'=0}^T gamma^t' r_{t'}
         """
 
-        # DONE: create list_of_discounted_returns
+        # TODO: create list_of_discounted_returns
         # Hint: note that all entries of this output are equivalent
-        # because each sum is from 0 to T (and doesnt involve t)
-        discount_np = np.power(np.array(self.gamma), np.arange(len(rewards)))
-        discounted_returns = np.sum(np.array(rewards) * discount_np, keepdims=True)
-        list_of_discounted_returns = discounted_returns.tolist()
+            # because each sum is from 0 to T (and doesnt involve t)
+        # to set power thing as grow with t
+        len_reward = len(rewards)
+        power_array = np.arange(0,len_reward)
+
+        discount = self.gamma ** power_array
+        discounted_returns = np.sum(rewards * discount, keepdims=True)
+        list_of_discounted_returns = np.repeat(discounted_returns,len_reward)
         return list_of_discounted_returns
 
     def _discounted_cumsum(self, rewards):
@@ -168,14 +171,17 @@ class PGAgent(BaseAgent):
             -and returns a list where the entry in each index t' is sum_{t'=t}^T gamma^(t'-t) * r_{t'}
         """
 
-        # DONE: create `list_of_discounted_returns`
+        # TODO: create `list_of_discounted_returns`
         # HINT1: note that each entry of the output should now be unique,
-        # because the summation happens over [t, T] instead of [0, T]
+            # because the summation happens over [t, T] instead of [0, T]
         # HINT2: it is possible to write a vectorized solution, but a solution
-        # using a for loop is also fine
-        discount_np = np.power(np.array(self.gamma), np.arange(len(rewards)))
-        r = np.array(rewards)
-        list_of_discounted_cumsums = [np.sum(discount_np[:len(rewards) - t] * r[t:])
-                                      for t in range(len(rewards))]
-        # list_of_discounted_cumsums = scipy.signal.lfilter(b=[1], a=[1, -self.gamma], x=re[::-1])[::-1]
+            # using a for loop is also fine
+        list_of_discounted_cumsums = []
+        len_reward = len(rewards)
+        power_array = np.arange(0,len_reward)
+        discount = self.gamma ** power_array
+        np_rewards = np.array(rewards)
+
+        for t in range(len_reward):
+            list_of_discounted_cumsums.append(np.sum(np_rewards[t:] * discount[:len_reward-t]))
         return list_of_discounted_cumsums
